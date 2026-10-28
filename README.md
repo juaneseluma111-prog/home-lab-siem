@@ -1,80 +1,45 @@
-# \# Home Security Lab — SIEM Intrusion Detection
+# Home security lab with Wazuh SIEM
 
-# 
+A small virtual lab where I attack a Windows Server from Kali and check what those attacks look like in Wazuh. Part of my cybersecurity portfolio.
 
-# Virtualized cybersecurity lab simulating real attacks and detecting
+## Lab architecture
 
-# them with Wazuh SIEM. Part of my cybersecurity portfolio.
+| Machine | OS | Role | IP |
+|---|---|---|---|
+| Kali Linux | Kali 2024 | Attacker | 192.168.56.1 |
+| Windows Server | Server 2019 | Target, running the Wazuh agent | 192.168.56.102 |
+| Ubuntu + Wazuh | Ubuntu 22.04 | SIEM, Wazuh 4.9 | 192.168.56.104 |
 
-# 
+All three run in VirtualBox. The Windows Server reports to Wazuh through the agent.
 
-# \## Lab Architecture
+![Wazuh agent active](screnshots/alert-detail.png)
 
-# | Machine | OS | Role | IP |
+## What I did
 
-# |---|---|---|---|
+### 1. Reconnaissance
 
-# | Kali Linux | Kali 2024 | Attacker | 192.168.56.1 |
+`nmap -sV -sC -T4` against the Windows Server. Open ports: 135, 139, 445, 3389, 5357 and 5985.
 
-# | Windows Server | Server 2019 | Target | 192.168.56.102 |
+![Nmap scan](screnshots/Captura%20resultado%20nmap%20proyecto1.png)
 
-# | Ubuntu + Wazuh | Ubuntu 22.04 | SIEM | 192.168.56.104 |
+### 2. Brute force against RDP
 
-# 
+Hydra with the `administrator` account and a six-password list. No valid password was found, and the attempts left a trace in Wazuh.
 
-# \## Attack Scenarios Simulated
+![Hydra against RDP](screnshots/Captura%20de%20pantalla%20resultado%20ataque%20fuerza%20bruta%20hydra%20proyecto%201.png)
 
-# 1\. Network reconnaissance — Nmap -sV -sC scan
+## What Wazuh showed
 
-# 2\. Brute force authentication — Hydra against RDP
+- The Hydra attempts as NTLM logon events from the workstation `kali` (192.168.56.1), one second after Hydra finished
+- Windows logon and logoff events, remote logons, and special privileges assigned to new logons
+- The Wazuh agent being stopped, which Wazuh maps to MITRE ATT&CK T1562.001 (Disable or Modify Tools)
 
-# 
+![Threat hunting view](screnshots/capt%201%20alertas%20proyecto%201.png)
 
-# \## Key Detections
+![Event detail in Discover](screnshots/wazuh-alerts.png)
 
-# \- Port scan detected (ports 135, 139, 445, 3389, 5985)
+## Tools
 
-# \- NTLM authentication attempts from Kali detected
+VirtualBox 7 · Wazuh 4.9 · Nmap 7.98 · Hydra 9.5 · Kali Linux 2024
 
-# \- Multiple authentication failures logged
-
-# 
-
-# \## Screenshots
-
-# !\[Wazuh Alerts](screenshots/wazuh-alerts.png)
-
-# !\[Alert Detail](screenshots/alert-detail.png)
-
-# !\[Agent Active](screenshots/agent-active.png)
-
-# 
-
-# \## Tools Used
-
-# \- VirtualBox 7.x
-
-# \- Wazuh 4.9 (SIEM)
-
-# \- Nmap 7.x
-
-# \- Hydra
-
-# \- Kali Linux 2024
-
-# 
-
-# \## Skills Demonstrated
-
-# \- SIEM deployment and configuration
-
-# \- Network attack simulation in controlled environment
-
-# \- Alert analysis and log correlation
-
-# \- Security monitoring and incident detection
-
-# 
-
-# \*Juan Esteban Umana Machado — linkedin.com/in/juanesumaa11\*
-
+Juan Esteban Umaña Machado · linkedin.com/in/juanesumaa11
